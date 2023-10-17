@@ -2,10 +2,19 @@ import numpy as np
 import pyzed.sl as sl
 
 class ZED():
-    def __init__(self, fps = 60, depth_min_distance = 0.2, depth_max_distance = 3):
-        
+    def __init__(self, fps = 60, depth_min_distance = 0.2, depth_max_distance = 3, filename = None):
+        if filename is None:
+            print("Using Live Stream from ZED")
+            self.input_type = sl.InputType()
+            self.svo_mode = False
+        else:
+            print(f"Reading SVO File: {0}".format(filename))
+            self.input_type = sl.InputType()
+            self.input_type.set_from_svo_file(filename)
+            self.svo_mode = True
+
         self.camera = sl.Camera()
-        self.init_params = sl.InitParameters()
+        self.init_params = sl.InitParameters(input_t = self.input_type)
         self.init_params.camera_fps = fps
         self.init_params.coordinate_units = sl.UNIT.METER
         self.init_params.depth_minimum_distance = depth_min_distance
