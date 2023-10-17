@@ -1,5 +1,6 @@
 # ZED_Hand_Tracking
 Tracking 3D positions of hand landmarks using a ZED 2i Camera, OpenCV, and MediaPipe.
+Make sure that you have already installed ZED SDK, OpenCV and MediaPipe.
 ## testing.ipynb
 DON'T USE THIS FILE. (I use it for testing purposes.)
 ## live_stream.ipynb
