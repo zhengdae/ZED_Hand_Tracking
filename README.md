@@ -9,5 +9,5 @@ This file will 1. Open the ZED Camera or Open a Recorded .svo file, 2. Run the h
 2. Processes the image
 3. Outputs the image with hand landmarks overlayed
 4. Outputs a 3D scatter plot visualizing the 3D postion of each hand landmark
-## record_svo_file.ipynb
+## record_video_svo.ipynb
 Run this file to record video (.svo), need to specify the filename in the .ipynb file.
