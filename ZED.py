@@ -2,7 +2,7 @@ import numpy as np
 import pyzed.sl as sl
 
 class ZED():
-    def __init__(self, fps = 60, depth_min_distance = 0.2, depth_max_distance = 3, input_filename = None):
+    def __init__(self, fps = None, depth_min_distance = 0.2, depth_max_distance = 3, input_filename = None):
         if input_filename is None:
             print("Using Live Stream from ZED")
             self.input_type = sl.InputType()
@@ -15,7 +15,10 @@ class ZED():
             
         self.camera = sl.Camera()
         self.init_params = sl.InitParameters(input_t = self.input_type)
-        self.init_params.camera_fps = fps
+
+        if fps is not None:
+            self.init_params.camera_fps = fps
+            
         self.init_params.coordinate_units = sl.UNIT.METER
         self.init_params.depth_minimum_distance = depth_min_distance
         self.init_params.depth_maximum_distance = depth_max_distance
