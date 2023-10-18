@@ -11,3 +11,8 @@ This file will 1. Open the ZED Camera or Open a Recorded .svo file, 2. Run the h
 4. Outputs a 3D scatter plot visualizing the 3D postion of each hand landmark
 ## record_video_svo.ipynb
 Run this file to record video (.svo), need to specify the filename in the .ipynb file.
+
+## TRACKING.py
+Customized module to process and visualize the video (images) using OpenCV and MediaPipe
+## ZED.py
+Customized module for ZED Camera configuration
