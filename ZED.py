@@ -24,6 +24,7 @@ class ZED():
         self.init_params.depth_maximum_distance = depth_max_distance
 
         self.image = sl.Mat()
+        self.depth = sl.Mat()
         self.point_cloud = sl.Mat()
 
     def enable_recording(self, output_filename):
@@ -88,6 +89,8 @@ class ZED():
 
     def get_image(self):
         self.camera.retrieve_image(self.image, sl.VIEW.LEFT)
+        # self.camera.retrieve_measure(self.depth, sl.MEASURE.DEPTH)
         self.camera.retrieve_measure(self.point_cloud, sl.MEASURE.XYZRGBA, sl.MEM.CPU)
         # convert to the format that MediaPipe can process
         self.image_cv2 = self.image.get_data()
+        # self.depth_cv2 = self.depth.get_data()
