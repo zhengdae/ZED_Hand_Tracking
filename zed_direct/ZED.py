@@ -2,17 +2,38 @@ import numpy as np
 import pyzed.sl as sl
 
 class ZED():
-    def __init__(self, fps = 60, depth_min_distance = 0.2, depth_max_distance = 3):
-        
+    def __init__(self, fps = None, depth_min_distance = 0.2, depth_max_distance = 3, input_filename = None):
+        if input_filename is None:
+            print("Using Live Stream from ZED")
+            self.input_type = sl.InputType()
+            self.svo_mode = False
+        else:
+            print(f"Reading SVO File: {0}".format(input_filename))
+            self.input_type = sl.InputType()
+            self.input_type.set_from_svo_file(input_filename)
+            self.svo_mode = True
+            
         self.camera = sl.Camera()
-        self.init_params = sl.InitParameters()
-        self.init_params.camera_fps = fps
+        self.init_params = sl.InitParameters(input_t = self.input_type)
+
+        if fps is not None:
+            self.init_params.camera_fps = fps
+            
         self.init_params.coordinate_units = sl.UNIT.METER
         self.init_params.depth_minimum_distance = depth_min_distance
         self.init_params.depth_maximum_distance = depth_max_distance
 
         self.image = sl.Mat()
+        self.depth = sl.Mat()
         self.point_cloud = sl.Mat()
+
+    def enable_recording(self, output_filename):
+        if output_filename is not None:
+            recording_param = sl.RecordingParameters(output_filename, sl.SVO_COMPRESSION_MODE.H264)
+            err = self.camera.enable_recording(recording_param)
+            if err != sl.ERROR_CODE.SUCCESS:
+                print("RECORDING ZED: ", err)
+                
 
     def config_resolution(self, resolution = "HD720"):
         # Configure Resolution
@@ -44,6 +65,8 @@ class ZED():
             self.init_params.depth_mode = sl.DEPTH_MODE.QUALITY
         if depth_mode == "PERFORMANCE":
             self.init_params.depth_mode = sl.DEPTH_MODE.PERFORMANCE
+        if depth_mode == "None":
+            self.init_params.depth_mode = sl.DEPTH_MODE.NONE
         
 
 
@@ -66,6 +89,8 @@ class ZED():
 
     def get_image(self):
         self.camera.retrieve_image(self.image, sl.VIEW.LEFT)
+        # self.camera.retrieve_measure(self.depth, sl.MEASURE.DEPTH)
         self.camera.retrieve_measure(self.point_cloud, sl.MEASURE.XYZRGBA, sl.MEM.CPU)
         # convert to the format that MediaPipe can process
         self.image_cv2 = self.image.get_data()
+        # self.depth_cv2 = self.depth.get_data()
