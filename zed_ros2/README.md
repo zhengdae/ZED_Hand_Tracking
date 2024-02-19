@@ -29,6 +29,7 @@ I made several attempts, please see Option 1, Option 2, Option 3, and Option 4 (
 
     Problem:
     1. Saving Point Cloud is slow and resulting in BIG files, still inconsistent frequency. 
+    2. Extracting XYZ from PointCloud2 messages is tricky. (Working on this)
 
 # Option 3: PYTHON for RECORDING (recommended)
     1. Record left image, right image, and depth image, 
@@ -37,6 +38,8 @@ I made several attempts, please see Option 1, Option 2, Option 3, and Option 4 (
     4. Use Numpy to save depth image as .npy files. (Saving to .csv is very slow, bad for saving efficiency)
     5. Conduct hand tracking using MediaPipe. 
 
+    Problem:
+    1. Unlike PointCloud2 message, Depth message only have distance in Z direction, pixel info for X and Y directions.
     
 # Option 4: PYTHON for RECORDING (HIGH RESOLUTION)
     Recording either point cloud or depth info from ROS topics is harmful to Resolution and Frame Rate. 
@@ -46,3 +49,6 @@ I made several attempts, please see Option 1, Option 2, Option 3, and Option 4 (
     3. Use OpenCV to save left and right images as .png files,
     4. Conduct hand tracking using MediaPipe using both left and right images. 
     5. Calculate the landmark's 3D position by 3D reconstruction using cameras parameters (focal length, baseline, etc.)
+
+    Problem:
+    1. A lot of post processing efforts. 
