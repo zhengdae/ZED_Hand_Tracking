@@ -12,7 +12,7 @@ class handtracking():
                                               min_detection_confidence = detection_conf, 
                                               min_tracking_confidence = tracking_conf)
         self.draw = mp.solutions.drawing_utils
-
+        
     def detect_landmarks(self, image):
         image.flags.writeable = False
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -25,9 +25,48 @@ class handtracking():
                 self.draw.draw_landmarks(image, 
                                          landmarks, 
                                          self.mp_hands.HAND_CONNECTIONS)
-        
         return image
     
+    def get_point_cloud(self, depth, u, v, fx, fy, cx, cy):
+        X = (u - cx) * depth[v, u] / fx
+        Y = (v - cy) * depth[v, u] / fy
+        Z = depth[v, u]
+        return X, Y, Z
+
+    def get_position(self, image, depth, fx, fy, cx, cy, width, height):
+        left_data = []
+        right_data = []
+        if self.results.multi_hand_landmarks:
+            for num, landmarks in enumerate(self.results.multi_hand_landmarks):
+                handedness = self.results.multi_handedness[self.results.multi_hand_landmarks.index(landmarks)].classification[0].label
+                for id, landmark in enumerate(landmarks.landmark):
+                    if id == 0:
+                        wrist_landmark = [landmark.x, landmark.y, landmark.z]
+                        X, Y = int(landmark.x * width), int(landmark.y * height)
+                        if X > 0 and Y > 0:
+                            wrist_x, wrist_y, wrist_z = self.get_point_cloud(depth, X, Y, fx, fy, cx, cy)
+
+                    x_3d = wrist_x + (landmark.x * width - wrist_landmark[0] * width) * wrist_z/fx
+                    y_3d = wrist_y + (landmark.y * height - wrist_landmark[1] * height) * wrist_z/fy
+                    z_3d = wrist_z + (landmark.z - wrist_landmark[2]) * 2.1163 # 2.1163 is the focal length at VGA
+
+                    hand_landmarks_3d = [x_3d, y_3d, z_3d]
+
+                    if handedness == "Right":
+                        left_data.append(hand_landmarks_3d)
+                    elif handedness == "Left":
+                        right_data.append(hand_landmarks_3d)
+
+                if handedness == "Right":
+                    cv2.putText(image, "Left", (X, Y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+                elif handedness == "Left":
+                    cv2.putText(image, "Right", (X, Y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
+
+        left_data = np.array(left_data)
+        right_data = np.array(right_data)
+
+        return left_data, right_data
+
     def plot(self, ax, plt, data, xlim=(-0.5, 0.5),ylim=(-0.5, 0.5),zlim=(0.2, 1.0)):
         if data.shape >= (21,3):
             ax.clear()

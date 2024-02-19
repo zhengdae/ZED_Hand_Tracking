@@ -25,15 +25,54 @@ class handtracking():
                 self.draw.draw_landmarks(image, 
                                          landmarks, 
                                          self.mp_hands.HAND_CONNECTIONS)
-        
         return image
     
+    def get_position(self, image, point_cloud, fx, fy, width, height):
+        left_data = []
+        right_data = []
+        if self.results.multi_hand_landmarks:
+            for num, landmarks in enumerate(self.results.multi_hand_landmarks):
+                handedness = self.results.multi_handedness[self.results.multi_hand_landmarks.index(landmarks)].classification[0].label
+                for id, landmark in enumerate(landmarks.landmark):
+                    if id == 0:
+                        wrist_landmark = [landmark.x, landmark.y, landmark.z]
+                        X, Y = int(landmark.x * width - 1), int(landmark.y * height - 1)
+                        if X > 0 and Y > 0:
+                            point_cloud_value = point_cloud[X, Y]
+                            wrist_position = [point_cloud_value[0],point_cloud_value[1],point_cloud_value[2]]
+                            print(handedness + str(X) + '        ' + str(Y))
+                    # calculate more accurate positions
+                    #x_3d = wrist_position[0] + (landmark.x * width - wrist_landmark[0] * width)
+                            
+                    #y_3d = wrist_position[1] + (landmark.y * height - wrist_landmark[1] * height)
+                            
+                    #z_3d = wrist_position[2] + (landmark.z - wrist_landmark[2]) * 2.791
+
+                    # this is the calculated 3d position of each landmark (joint)
+                    #hand_landmarks_3d = [x_3d, y_3d, z_3d]
+
+                    # save 3d position of each joint to different hands
+                    #if handedness == "Right":
+                    #    left_data.append(hand_landmarks_3d)
+                    #elif handedness == "Left":
+                    #    right_data.append(hand_landmarks_3d)
+                
+                if handedness == "Right":
+                    cv2.putText(image, "Left", (X, Y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+                elif handedness == "Left":
+                    cv2.putText(image, "Right", (X, Y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
+
+        left_data = np.array(left_data)
+        right_data = np.array(right_data)
+
+        return left_data, right_data
+
     def plot(self, ax, plt, data, xlim=(-0.5, 0.5),ylim=(-0.5, 0.5),zlim=(0.2, 1.0)):
         if data.shape >= (21,3):
             ax.clear()
-            ax.set_xlim3d(xlim)
-            ax.set_ylim3d(ylim)
-            ax.set_zlim3d(zlim)
+            #ax.set_xlim3d(xlim)
+            #ax.set_ylim3d(ylim)
+            #ax.set_zlim3d(zlim)
             
             ax.set_xlabel('x')
             ax.set_ylabel('y')
