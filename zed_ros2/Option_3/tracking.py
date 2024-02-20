@@ -95,6 +95,3 @@ class handtracking():
             # Draw the plot
             plt.draw()
             plt.pause(0.0001)
-
-
-    
